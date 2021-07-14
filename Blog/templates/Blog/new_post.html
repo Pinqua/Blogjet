@@ -1,0 +1,112 @@
+{% extends "Blog/layout.html" %}
+{% load static %}
+{% block css %}
+<style>
+  #id_content {
+    height: 450px;
+    overflow: auto;
+  }
+</style>
+{% endblock %}
+{% block body %}
+<!-- Page Header -->
+<header class="masthead" style="background-image: url('{% static 'Blog/img/updedit-bg.jpg' %}');">
+  <div class="overlay"></div>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-md-10 mx-auto">
+        <div class="site-heading">
+          <h1>New Post</h1>
+          <hr class="small">
+          <span class="subheading">Post a new post</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% for message in messages %}
+  <div {% if message.tags %} class="alert alert-{{message.tags }}  alert-dismissible fade show" {% endif %} role="alert"
+    style="margin-bottom: 0;">
+    {% if message.tags == 'danger'  %}
+    &cross;
+    {% else %}
+    &check;
+    {% endif %}
+    {{ message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  {% endfor %}
+</header>
+
+
+
+
+<!-- Main Content -->
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-md-10 mx-auto">
+      <form action="{% url 'New-Post' %}" method="POST">
+        {% csrf_token %}
+        <div class="control-group">
+          <div class="form-group floating-label-form-group controls">
+            <label>Title</label>
+            <input type="text" class="form-control" placeholder="Title" id="title" name='title' required
+              data-validation-required-message="Please enter post title.">
+            <p class="help-block text-danger"></p>
+          </div>
+        </div>
+        <div class="control-group">
+          <div class="form-group floating-label-form-group controls">
+            <label>Tagline</label>
+            <input type="text" class="form-control" placeholder="Tagline" id="tline" name="tline" required
+              data-validation-required-message="Please enter post tagline.">
+            <p class="help-block text-danger"></p>
+          </div>
+        </div>
+        <div class="form-group">
+          <label style="padding: 20px 0;">Choose Category</label>
+          <select class="form-control form-control-lg" name='category' id="exampleFormControlSelect1">
+            <option value="Entertainment">Entertainment</option>
+            <option value="Education">Education</option>
+            <option value="Sports">Sports</option>
+            <option value="Technology">Technology</option>
+            <option value="Food">Food</option>
+            <option value="Fashion">Fashion</option>
+            <option value="Travel">Travel</option>
+            <option value="News">News</option>
+            <option value="Science">Science</option>
+            <option value="Lifestyle">Lifestyle</option>
+            <option value="Finance">Finance</option>
+            <option value="Health">Health</option>
+            <option value="Political">Political</option>
+            <option value="Business">Business</option>
+            <option value="Movie">Movie</option>
+            <option value="Gaming">Gaming</option>
+            <option value="Beauty">Beauty</option>
+            <option value="Others">Others</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <div class="form-group floating-label-form-group controls">
+            <label>content</label>
+            <textarea rows="5" class="form-control" placeholder="Content" name="content" id="id_content"
+              data-validation-required-message="Please enter post content."></textarea>
+            <p class="help-block text-danger"></p>
+          </div>
+        </div>
+        <br>
+        <div id="success"></div>
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary" id="sendMessageButton">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+{% block js %}
+<script src="{% static 'Blog/js/tinymce.js' %}"></script>
+{% endblock %}

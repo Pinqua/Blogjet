@@ -1,0 +1,54 @@
+{% extends 'Blog/loginbase.html' %}
+{% load static %}
+{% block body %}
+
+
+<form action="{% url 'Signin' %}" method="POST" class="login100-form validate-form">
+  {% csrf_token %}
+  <span class="login100-form-title p-b-26">
+    Welcome
+  </span>
+  <span class="login100-form-title p-b-48">
+    <a href="{% url 'Home' %}"><img src="{% static 'Blog/favicons/apple-touch-icon.png' %}" width="50" height="50"
+        alt="logo"></a>
+  </span>
+  <div class="wrap-input100">
+    <input class="input100" type="text" name="uname" required>
+    <span class="focus-input100" data-placeholder="Username"></span>
+  </div>
+
+  <div class="wrap-input100 validate-input" data-validate="Enter password">
+    <span class="btn-show-pass">
+      <i class="zmdi zmdi-eye"></i>
+    </span>
+    <input class="input100" type="password" name="pass" required>
+    <span class="focus-input100" data-placeholder="Password"></span>
+  </div>
+
+  <div class="container-login100-form-btn">
+    <div class="wrap-login100-form-btn">
+      <div class="login100-form-bgbtn"></div>
+      <button type='submit' class="login100-form-btn" {% if redirect %} name="redirect" value="{{redirect}}"
+        {% endif %}>
+        Login
+      </button>
+    </div>
+  </div>
+
+  <div class="text-center p-t-115">
+    <span class="txt1">
+      Don’t have an account?
+    </span>
+
+    <a class="txt2" href="{% url 'Signup' %}">
+      Sign Up
+    </a><br>
+    <a class="txt2" href="{% url 'password_reset' %}">
+      forget password ?
+    </a>
+  </div>
+
+
+</form>
+
+{% endblock %}

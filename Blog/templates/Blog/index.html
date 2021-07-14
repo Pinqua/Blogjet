@@ -1,0 +1,288 @@
+<!-- Page Header -->
+{% extends 'Blog/layout.html' %}
+{% load static %}
+{% block css %}
+<style>
+  h3 {
+    font-size: 130%;
+  }
+
+  h2 {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  @media screen and (max-width:500px) {
+    .badge {
+      padding: 4px;
+      font-size: 65%;
+    }
+
+    .post-preview>.post-meta {
+      font-size: 14px;
+    }
+  }
+
+  @media screen and (max-width:285px) {
+    .badge {
+      font-size: 10px;
+    }
+  }
+</style>
+{% endblock %}
+{% load humanize %}
+{% block body %}
+
+<header class="masthead" style="background-image: url('{% static 'Blog/img/home-bg.jpg' %}')">
+  <div class="overlay"></div>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-md-10 mx-auto">
+        <div class="site-heading">
+          <h1>Blogjet</h1>
+          <hr class="small">
+          <span class="subheading">Heaven for Bloggers</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% for message in messages %}
+  <div {% if message.tags %} class="alert alert-{{message.tags }}  alert-dismissible fade show" {% endif %} role="alert"
+    style="margin-bottom: 0;">
+    {% if message.tags == 'danger'  %}
+    &cross;
+    {% else %}
+    &check;
+    {% endif %}
+    {{ message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  {% endfor %}
+</header>
+
+<!-- Main Content -->
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-md-10 mx-auto">
+      <form action="{% url 'Search' %}" method="GET" class="form-inline">
+        <input class="form-control mr-sm-2" style="margin-bottom: 1rem;width: 100%;" type="search" name='searchquery'
+          placeholder="Search" aria-label="Search" required>
+      </form>
+      <form action="{% url 'Filter-Sort' %}" method="GET">
+        <div class="form-group">
+          <select name='ctg' class="form-control" id="exampleFormControlSelect1">
+            <option value="All">All</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Education">Education</option>
+            <option value="Sports">Sports</option>
+            <option value="Technology">Technology</option>
+            <option value="Food">Food</option>
+            <option value="Fashion">Fashion</option>
+            <option value="Travel">Travel</option>
+            <option value="News">News</option>
+            <option value="Science">Science</option>
+            <option value="Lifestyle">Lifestyle</option>
+            <option value="Finance">Finance</option>
+            <option value="Health">Health</option>
+            <option value="Political">Political</option>
+            <option value="Business">Business</option>
+            <option value="Movie">Movie</option>
+            <option value="Gaming">Gaming</option>
+            <option value="Beauty">Beauty</option>
+            <option value="Others">Others</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <select name='sort' class="form-control" id="exampleFormControlSelect1">
+            <option value='1'>Recently Added</option>
+            <option value="2">Oldest</option>
+            <option value="3">Random</option>
+            <option value="4">Most Viewed</option>
+            <option value="5">Most liked</option>
+            <option value="6">Most Disliked</option>
+          </select>
+        </div>
+        <div>
+          <button class='btn btn-primary float-left' type="submit"><i class="fas fa-sliders-h"></i>
+            &nbsp;Filter</button>
+        </div>
+      </form>
+      <div class="clearfix" style="margin-bottom: 50px;">
+        <a class="btn btn-primary float-right" href="{% url 'New-Post' %}"><i class="fas fa-plus"></i> &nbsp;Post</a>
+      </div>
+      <hr>
+      {% if posts %}
+      {% for post in posts %}
+      <div class="post-preview">
+        <span class="badge  badge-success">{{ post.category }}</span>
+        <span class="badge  badge-info"><i class="far fa-eye"></i> {{ post.views }} views</span>
+        <span class="badge  badge-primary"><i class="fas fa-thumbs-up"></i> {{post.no_of_likes}} likes</span>
+        <span class="badge  badge-danger"><i class="fas fa-thumbs-down"></i> {{post.no_of_dislikes}} dislikes</span>
+        <a href="{% url 'Post' post.slug post.pk %}">
+          <h2 class="post-title" style="margin-top: 10px;">
+            {{post.title|truncatechars:67}}
+          </h2>
+          <h3 class="post-subtitle">
+            {{post.tagline}}
+          </h3>
+        </a>
+        <p class="post-meta">Posted by
+          <a href="{% url 'User-Profile' post.author.pk %}">{{post.author.username}}</a>
+          on {{post.created_on | naturaltime }}</p>
+      </div>
+      <hr>
+      {% endfor %}
+      {% elif Page == 'search_result' %}
+      <div class="post-preview">
+        <h3>NO Post Found!</h3>
+        <h5>Suggestions:</h5>
+        <ul>
+          <li>Make sure that all words are spelled correctly.</li>
+          <li>Try different Keyword</li>
+          <li>Try more general keyword.</li>
+        </ul>
+      </div>
+      {% elif Page == 'filter_and_sort_result' %}
+      <div class="post-preview">
+        <h3>NO Post Found!</h3>
+        <h5>Suggestions:</h5>
+        <ul>
+          <li>Try different filter</li>
+          <li>Try more general filters.</li>
+        </ul>
+      </div>
+
+
+      {% else %}
+      <div class="post-preview">
+        <p>NO Post Posted Yet!</p>
+      </div>
+      {% endif %}
+
+
+      <!-- Pager -->
+      <!--  <div class="clearfix">
+        <a class="btn btn-primary float-right" href="#">Older Posts &rarr;</a>
+      </div>  -->
+    </div>
+  </div>
+</div>
+
+
+{% if  Page == 'search_result' %}
+
+
+{% if posts.has_other_pages %}
+<nav aria-label="Page navigation example">
+  <ul class="pagination justify-content-center">
+    {%  if posts.has_previous %}
+    <li class="page-item"><a class="page-link"
+        href="{% url 'Search' %}?searchquery={{searchquery}}&page={{posts.previous_page_number}}"
+        aria-label="Previous">&laquo;</a></li>
+    {% else %}
+    <li class="disabled page-item"><span class="page-link">&laquo;</span></li>
+    {% endif %}
+    {% for i in posts.paginator.page_range %}
+    {% if posts.number == i %}
+    <li class="active page-item"><span class="page-link">{{i}}</span></li>
+    {% elif i < posts.number|add:"3" and i > posts.number|add:"-3" %}
+    <li class="page-item"><a class="page-link"
+        href="{% url 'Search' %}?searchquery={{searchquery}}&page={{i}}">{{i}}</a>
+    </li>
+    {% endif %}
+    {% endfor %}
+    {% if posts.has_next %}
+    <li class="page-item"><a class="page-link"
+        href="{% url 'Search' %}?searchquery={{searchquery}}&page={{posts.next_page_number}}"
+        aria-label="Next">&raquo;</a>
+    </li>
+    {% else %}
+    <li class="disabled page-item"><span class="page-link">&raquo;</span></li>
+    {% endif %}
+  </ul>
+</nav>
+
+
+{% endif %}
+
+{% elif Page == 'filter_and_sort_result' %}
+
+
+{% if posts.has_other_pages %}
+
+<nav aria-label="Page navigation example">
+  <ul class="pagination justify-content-center">
+    {%  if posts.has_previous %}
+    <li class="page-item"><a class="page-link"
+        href="{% url 'Filter-Sort' %}?ctg={{ctg}}&sort={{sort}}&page={{posts.previous_page_number}}"
+        aria-label="Previous">&laquo;</a></li>
+    {% else %}
+    <li class="disabled page-item"><span class="page-link">&laquo;</span></li>
+    {% endif %}
+    {% for i in posts.paginator.page_range %}
+    {% if posts.number == i %}
+    <li class="active page-item"><span class="page-link">{{i}}</span></li>
+    {% elif i < posts.number|add:"3" and i > posts.number|add:"-3" %}
+    <li class="page-item"><a class="page-link"
+        href="{% url 'Filter-Sort' %}?ctg={{ctg}}&sort={{sort}}&page={{i}}">{{i}}</a>
+    </li>
+    {% endif %}
+    {% endfor %}
+    {% if posts.has_next %}
+    <li class="page-item"><a class="page-link"
+        href="{% url 'Filter-Sort' %}?ctg={{ctg}}&sort={{sort}}&page={{posts.next_page_number}}"
+        aria-label="Next">&raquo;</a>
+    </li>
+    {% else %}
+    <li class="disabled page-item"><span class="page-link">&raquo;</span></li>
+    {% endif %}
+  </ul>
+</nav>
+
+{% endif %}
+
+
+
+
+
+
+
+
+
+{% else %}
+
+{% if posts.has_other_pages %}
+<nav aria-label="Page navigation example">
+  <ul class="pagination justify-content-center">
+    {%  if posts.has_previous %}
+    <li class="page-item"><a class="page-link" href="{% url 'Home' %}?page={{posts.previous_page_number}}"
+        aria-label="Previous">&laquo;</a></li>
+    {% else %}
+    <li class="disabled page-item"><span class="page-link">&laquo;</span></li>
+    {% endif %}
+    {% for i in posts.paginator.page_range %}
+    {% if posts.number == i %}
+    <li class="active page-item"><span class="page-link">{{i}}</span></li>
+    {% elif i < posts.number|add:"3" and i > posts.number|add:"-3" %}
+    <li class="page-item"><a class="page-link" href="{% url 'Home' %}?page={{i}}">{{i}}</a></li>
+    {% endif %}
+    {% endfor %}
+    {% if posts.has_next %}
+    <li class="page-item"><a class="page-link" href="{% url 'Home' %}?page={{posts.next_page_number}}"
+        aria-label="Next">&raquo;</a>
+    </li>
+    {% else %}
+    <li class="disabled page-item"><span class="page-link">&raquo;</span></li>
+    {% endif %}
+  </ul>
+</nav>
+
+
+{% endif %}
+
+{% endif %}
+
+
+
+{% endblock %}

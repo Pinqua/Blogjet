@@ -1,0 +1,367 @@
+{% extends 'Blog/layout.html' %}
+{% load static %}
+{% block css %}
+<style>
+  .toast {
+    max-width: none;
+  }
+
+  body {
+    color: #555;
+  }
+
+  .toast-body {
+    word-wrap: break-word !important;
+    word-break: keep-all;
+  }
+
+  .card {
+    border: none
+  }
+
+  header.masthead .post-heading .meta {
+    margin: 10px 0;
+  }
+
+  header.masthead .page-heading,
+  header.masthead .post-heading,
+  header.masthead .site-heading {
+    padding-bottom: 120px;
+  }
+
+  header.masthead .post-heading .subheading {
+    margin-bottom: 15px;
+  }
+
+  @media screen and (max-width:500px) {
+    header.masthead .post-heading .meta {
+      font-size: 14px;
+    }
+
+    .post-content .h1,
+    .post-content h1 {
+      font-size: 1.5rem;
+    }
+
+  }
+</style>
+<link rel="stylesheet" href="{% static 'Blog/css/content.css' %}">
+{% endblock %}
+{% load humanize %}
+{% block body %}
+<!-- Page Header -->
+<header class="masthead" style="background-image: url('{% static 'Blog/img/post-bg.jpg' %}')">
+  <div class="overlay"></div>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-md-10 mx-auto">
+        <div class="post-heading">
+          <h1>{{post.title}}</h1>
+          <h2 class="subheading">{{post.tagline}}</h2>
+          <span class="meta">Posted by
+            <a href="{% url  'User-Profile'  post.author.pk %}">{{post.author.username}}</a>
+            on {{post.created_on | naturaltime  }}</span>
+          {% if user.is_authenticated %}
+          <button style="outline: none;border: none;" class="badge  badge-primary" id='like' type="button" value="1">
+            {% if userreaction == 1 %}<i class="fas fa-thumbs-up"></i>{% else %}<i
+              class="far fa-thumbs-up"></i>{% endif %} like {{post.no_of_likes}}</button>
+          <button style="outline: none;border: none;" class="badge  badge-primary" type="button" id='dislike'
+            name='dislike' value="-1">{% if userreaction == -1 %}<i class="fas fa-thumbs-down"></i>{% else %}<i
+              class="far fa-thumbs-down"></i>{% endif %} dislike
+            {{post.no_of_dislikes}}</button>
+          <span style="font-size: 13px;"><i class="far fa-eye"></i> {{post.views}}</span>
+          {% else %}
+          <div class="clearfix">
+            <form action="{% url 'Post-Rec' post.pk %}" method="POST" class="float-left">
+              {% csrf_token %}
+              <button style="outline: none;border: none;" class="badge  badge-primary " type="submit" value="1">
+                {% if userreaction == 1 %}<i class="fas fa-thumbs-up"></i>{% else %}<i
+                  class="far fa-thumbs-up"></i>{% endif %} like {{post.no_of_likes}}</button>
+            </form>
+            <form action="{% url 'Post-Rec' post.pk %}" method="POST" class="float-left">
+              {% csrf_token %}
+              <button style="outline: none;border: none;" class="badge  badge-primary mx-1" type="submit" name='dislike'
+                value="-1">{% if userreaction == -1 %}<i class="fas fa-thumbs-down"></i>{% else %}<i
+                  class="far fa-thumbs-down"></i>{% endif %} dislike {{post.no_of_dislikes}}</button>
+            </form>
+            <span style="font-size: 14px;"><i class="far fa-eye"></i> {{post.views}}</span>
+          </div>
+
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+  </div>
+  {% for message in messages %}
+  <div {% if message.tags %} class="alert alert-{{message.tags }}  alert-dismissible fade show" {% endif %} role="alert"
+    style="margin-bottom: 0;">
+    {% if message.tags == 'danger'  %}
+    &cross;
+    {% else %}
+    &check;
+    {% endif %}
+    {{ message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  {% endfor %}
+</header>
+
+<!-- Post Content -->
+<article>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-md-10 mx-auto post-content" style="overflow: hidden;">
+        {{ post.content |safe }}
+      </div>
+    </div>
+  </div>
+</article>
+<hr>
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-md-10 mx-auto" id="add-comment">
+      <h3 id='comments-count'><i class="fas fa-comment-dots"></i> Comments - {{post.no_of_comments}}</h3>
+      <p>
+        {% if user.is_authenticated %}
+        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExampleaddcomment"
+          aria-expanded="false" aria-controls="collapseExample">
+          <i class="fas fa-plus"></i> Comment
+        </button>
+        {% else %}
+      <form action="{% url 'Add-Comnt' post.pk %}" method="POST">
+        {% csrf_token %}
+        <button class="btn btn-primary" type="submit"
+          style="font-size: 12px;padding: 5px 7px;margin: 5px;">Login</button>to post comment.
+      </form>
+      {% endif %}
+      </p>
+      <div class="collapse" id="collapseExampleaddcomment">
+        <div class="card card-body">
+          <form method="POST" id="addcomment" onsubmit="addnewcomment(event);">
+            <textarea name="comment" placeholder="Enter comment here.." style="width: 100%;height: 100%;"
+              required></textarea>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
+        </div>
+      </div>
+      <hr>
+    </div>
+  </div>
+</div>
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-md-10 mx-auto" id="commentcontainer">
+      {% for comment in comments %}
+      <div class="toast" role="alert" aria-live="assertive" id="commentbox{{comment.pk}}" aria-atomic="true"
+        data-autohide='false' style="width: 100%;margin:10px 0">
+        <div class="toast-header">
+          <a href="{% url 'User-Profile' comment.user_posting.pk %}"><img src="{{comment.profile_pic.url}}"
+              class="rounded mr-2" width='25' height="25" object-fit: contain; alt="..."></a>
+          <a class="mr-auto" href="{% url 'User-Profile' comment.user_posting.pk %}"><strong style="color: #6c757d;">
+              {{ comment.user_posting.get_username  }}</strong></a>
+          <small>{{comment.created |naturaltime}}</small>
+          {% if user.is_authenticated and user == comment.user_posting %}
+          <button type="button" value="{{ comment.pk }}" name="cmntpk" class="ml-2 mb-1 close" data-dismiss="toast"
+            aria-label="Close" onclick="deletecomment({{comment.pk}});">
+            <span aria-hidden="true"><i class="fas fa-trash-alt" style="font-size: 13px;"></i></span>
+          </button>
+          {% endif %}
+        </div>
+        <div class="toast-body">
+          {{comment.content}}
+          {% if user.is_authenticated %}
+          <div>
+            <button style="font-size: 10px;padding:5px;margin:7px 0;" class="btn btn-primary" type="button"
+              data-toggle="collapse" data-target="#collapseExamplereply{{comment.pk}}" aria-expanded="false"
+              aria-controls="collapseExample">
+              <i class="fas fa-reply"></i> reply
+            </button>
+          </div>
+          <div class="collapse" id="collapseExamplereply{{comment.pk}}">
+            <div class="card card-body">
+              <form method="POST" onsubmit="replycomment(event,{{comment.pk}});">
+                <textarea name="reply" placeholder="Enter reply here.." style="width: 100%;height: 100%;"
+                  required></textarea>
+                <button style="font-size: 10px;padding:5px;margin:5px 0;" type="submit" value='{{comment.pk}}'
+                  name="cmtpk" class="btn btn-primary">Submit</button>
+              </form>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% for reply in comment.replies.all %}
+      <div class="toast" role="alert" aria-live="assertive" id="commentbox{{reply.pk}}" aria-atomic="true"
+        data-autohide='false' style="width: 90%;margin:10px 0;margin-left:10%;">
+        <div class="toast-header">
+          <a href="{% url 'User-Profile' reply.user_posting.pk %}"><img src="{{reply.profile_pic.url}}" width='25'
+              height='25' class="rounded mr-2" object-fit: contain; alt="user-pic"></a>
+          <a class="mr-auto" href="{% url 'User-Profile' reply.user_posting.pk %}"><strong style="color: #6c757d;">
+              {{ reply.user_posting  }}
+            </strong></a>
+          <small>{{reply.created |naturaltime}}</small>
+          {% if user.is_authenticated and user == reply.user_posting %}
+          <button type="submit" value="{{ reply.pk }}" name="cmntpk" class="ml-2 mb-1 close" data-dismiss="toast"
+            aria-label="Close" onclick="deletecomment({{reply.pk}});">
+            <span aria-hidden="true"><i class="fas fa-trash-alt" style="font-size: 13px;"></i></span>
+          </button>
+          {% endif %}
+        </div>
+        <div class="toast-body">
+          {{reply.content}}
+        </div>
+      </div>
+      {% endfor %}
+      <div id='repliedcomments{{comment.pk}}'>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+{% block js %}
+<script>
+
+  var ccount = {{ post.no_of_comments }};
+  window.CSRF_TOKEN = "{{ csrf_token }}";
+
+
+
+
+  $(function () {
+    $('.toast').toast('show');
+    $('article img').attr("style", "height: auto ;max-width:100%;border:none ;display: block;");
+    $('#like').click(function () {
+      $.post("{% url  'Post-Rec' post.pk %}", { csrfmiddlewaretoken: window.CSRF_TOKEN, like: 1 }, function (json) {
+        $('#like').html("<i class='fa" + json.l + " fa-thumbs-up'></i> like " + json.likescount);
+        $('#dislike').html("<i class='fa" + json.d + " fa-thumbs-down'></i> dislike " + json.dislikescount);
+      });
+    });
+    $('#dislike').click(function () {
+      $.post("{% url  'Post-Rec' post.pk %}", { csrfmiddlewaretoken: window.CSRF_TOKEN, dislike: -1 }, function (json) {
+        $('#like').html("<i class='fa" + json.l + " fa-thumbs-up'></i> like " + json.likescount);
+        $('#dislike').html("<i class='fa" + json.d + " fa-thumbs-down'></i> dislike " + json.dislikescount);
+      });
+    });
+  }
+  );
+
+
+
+
+  function addnewcomment(event) {
+    event.preventDefault();
+    var value = $('#addcomment textarea').val();
+    $('#addcomment textarea').val('');
+    $.post("{% url 'Add-Comnt' post.pk %}", { csrfmiddlewaretoken: window.CSRF_TOKEN, comment: value }, function (json) {
+      var commentdata = json;
+      ccount++;
+      $("#comments-count").html(`<i class="fas fa-comment-dots"></i> Comments - ` + ccount + ``)
+      $('#commentcontainer').prepend(`
+        <div class="toast" role="alert" aria-live="assertive" id="commentbox`+ commentdata.pk + `"  aria-atomic="true" data-autohide='false'
+            style="width: 100%;margin:10px 0">
+            <div class="toast-header">
+              <a href="/Blog/viewprofile/`+ commentdata.userpk + `"><img src="` + commentdata.profile_pic + `"
+                  class="rounded mr-2" width='25' height="25" object-fit: contain; alt="..."></a>
+              <a class="mr-auto" href="/Blog/viewprofile/`+ commentdata.userpk + `"><strong
+                  style="color: #6c757d;">`+ commentdata.user_posting + `</strong></a>
+              <small>`+ commentdata.created + `</small>
+              {% if user.is_authenticated  %}
+                <button type="button" value="`+ commentdata.pk + `" name="cmntpk"  class="ml-2 mb-1 close"
+                  data-dismiss="toast" aria-label="Close" onclick="deletecomment(`+ commentdata.pk + `);">
+                  <span aria-hidden="true"><i class="fas fa-trash-alt" style="font-size: 13px;"></i></span>
+                </button>
+              {% endif %}
+            </div>
+            <div class="toast-body">
+              `+ commentdata.content + `
+              {% if user.is_authenticated %}
+              <div>
+                <button style="font-size: 10px;padding:5px;margin:7px 0;"  class="btn btn-primary" type="button"
+                  data-toggle="collapse" data-target="#collapseExamplereply`+ commentdata.pk + `" aria-expanded="false"
+                  aria-controls="collapseExample">
+                  <i class="fas fa-reply"></i> reply
+                </button>
+              </div>
+              <div class="collapse" id="collapseExamplereply`+ commentdata.pk + `">
+                <div class="card card-body">
+                  <form   method="POST"  onsubmit="replycomment(event,`+ commentdata.pk + `)">
+                    {% csrf_token %}
+                    <textarea name="reply" placeholder="Enter reply here.." style="width: 100%;height: 100%;"
+                      required></textarea>
+                    <button style="font-size: 10px;padding:5px;margin:5px 0;" type="submit" value='`+ commentdata.pk + `'
+                      name="cmtpk" class="btn btn-primary">Submit</button>
+                  </form>
+                </div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          <div id='repliedcomments`+ commentdata.pk + `'>
+          </div>
+          `);
+      $('.toast').toast('show');
+    });
+
+  }
+
+
+
+  function replycomment(event, pk) {
+    event.preventDefault();
+    var value = $('#collapseExamplereply' + pk + " textarea").val();
+    $('#collapseExamplereply' + pk + " textarea").val("")
+    $.post("{% url 'Add-Reply' post.pk %}", { csrfmiddlewaretoken: window.CSRF_TOKEN, reply: value, cmtpk: pk }, function (json) {
+      ccount++;
+      var commentdata = json;
+      $("#comments-count").html(`<i class="fas fa-comment-dots"></i> Comments - ` + ccount + ``);
+      $('#repliedcomments' + pk).append(
+        `
+      <div class="toast" role="alert" aria-live="assertive" id="commentbox`+ commentdata.pk + `" aria-atomic="true"
+        data-autohide='false' style="width: 90%;margin:10px 0;margin-left:10%;">
+        <div class="toast-header">
+          <a href="Blog/viewprofile/`+ commentdata.userpk + `"><img src="` + commentdata.profile_pic + `" width='25'
+              height='25' class="rounded mr-2" object-fit: contain; alt="user-pic"></a>
+          <a class="mr-auto" href="Blog/viewprofile/`+ commentdata.pk + `"><strong style="color: #6c757d;">
+              `+ commentdata.user_posting + `
+            </strong></a>
+          <small>`+ commentdata.created + `</small>
+          {% if user.is_authenticated  %}
+          <button type="submit" value="`+ commentdata.pk + `" name="cmntpk" class="ml-2 mb-1 close" data-dismiss="toast"
+            aria-label="Close" onclick="deletecomment(`+ commentdata.pk + `);">
+            <span aria-hidden="true"><i class="fas fa-trash-alt" style="font-size: 13px;"></i></span>
+          </button>
+          {% endif %}
+        </div>
+        <div class="toast-body">
+          `+ commentdata.content + `
+        </div>
+      </div>
+                       `
+      );
+      $('.toast').toast('show');
+    });
+
+  }
+
+
+
+  function deletecomment(pk) {
+    var value = pk;
+    $.post("{% url 'Del-Comnt' %}", { csrfmiddlewaretoken: window.CSRF_TOKEN, cmntpk: value }, function () {
+      ccount--;
+      $('#comments-count').html(`<i class="fas fa-comment-dots"></i> Comments - ` + ccount + ``);
+      $("#commentbox" + value).remove();
+    });
+
+  }
+
+
+
+</script>
+{% endblock %}

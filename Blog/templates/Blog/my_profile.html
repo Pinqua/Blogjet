@@ -1,0 +1,572 @@
+{% extends "Blog/layout.html" %}
+{% load static %}
+{% load humanize %}
+{% block css %}
+<style>
+  .toast {
+    max-width: none;
+  }
+
+  body {
+    color: #555;
+  }
+
+  .toast-body {
+    word-wrap: break-word !important;
+    word-break: keep-all;
+  }
+
+  .nav-link {
+    padding: .5rem .9rem;
+  }
+
+  .post-box {
+    max-height: 350px;
+    overflow: auto;
+  }
+
+  .card {
+    border: none
+  }
+</style>
+
+{% endblock %}
+{% block body %}
+<!-- Page Header -->
+<header class="masthead" style="background-image: url('{{ profile.cover_pic.url }}');">
+  <div class="overlay"></div>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-md-10 mx-auto">
+        <div class="site-heading">
+          <h1>Profile</h1>
+          <hr class="small">
+          <span class="subheading">Manage and edit profile</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% for message in messages %}
+  <div {% if message.tags %} class="alert alert-{{ message.tags }}  alert-dismissible fade show" {% endif %}
+    role="alert" style="margin-bottom: 0">
+    {% if message.tags == 'danger' %}
+    &cross;
+    {% else %}
+    &check;
+    {% endif %}
+    {{ message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  {% endfor %}
+</header>
+
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-md-10 mx-auto">
+      <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+          <a class="nav-link active" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab"
+            aria-controls="nav-profile" aria-selected="true">Profile</a>
+          <a class="nav-link" id="nav-edit-tab" data-toggle="tab" href="#nav-edit" role="tab" aria-controls="nav-edit"
+            aria-selected="false">Edit</a>
+          <a class="nav-link" id="nav-notifications-tab" data-toggle="tab" href="#nav-notifications" role="tab"
+            aria-controls="nav-notifications" aria-selected="false">Notifications <span id="notification-count"
+              class="badge badge-light">{{notifications.count}}</span></a>
+        </div>
+      </nav>
+      <div class="tab-content" id="nav-tabContent">
+        <div class="tab-pane fade show active" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+          <div>
+            <img id="profile_pic" src="{{ profile.profile_pic.url }}" alt="Profile Image" width="100" height="100"
+              style="border-radius: 50%; object-fit: cover; margin: 20px 0" />
+          </div>
+          <h6><i class="fas fa-user-circle"></i> &nbsp;User: {{ user.get_username }}</h6>
+          <h6><i class="fas fa-user-tie"></i> &nbsp;Name:{% if user.first_name and user.last_name %} {{user.first_name}}
+            {{user.last_name}}
+            {% else %} <span style="color: grey">not added yet</span>{% endif %}</h6>
+          <h6><i class="fas fa-envelope"></i> &nbsp;Email: {{ user.email }}</h6>
+          <h6><i class="fas fa-calendar-day"></i> &nbsp;Age: {% if profile.age %} {{profile.age}} {% else %} <span
+              style="color: grey">not added
+              yet</span>{% endif %}</h6>
+          <h6><i class="fas fa-map-marker-alt"></i> &nbsp;Location: {% if profile.location %} {{profile.location}}
+            {% else %}<span style="color: grey">not added
+              yet</span>{% endif %} </h6>
+          <h6><i class="fas fa-calendar-alt"></i> &nbsp;Date joined: {{ profile.user.date_joined |naturaltime }}</h6>
+          <h6><i class="fas fa-sign-in-alt"></i> &nbsp;Last login: {{ profile.user.last_login | naturaltime }}</h6>
+          <hr>
+          <h6><i class="fas fa-users"></i>&nbsp;&nbsp;<span
+              style="font-size:30px;font-weight: 500;">{{profile.followers}}</span> followers&nbsp;&nbsp;<span
+              style="font-size:30px;font-weight: 500;" id="followers__count">{{profile.following}}</span> following</h6>
+          <hr>
+          <h6><i class="fas fa-signature"></i> &nbsp;Bio</h6>
+          {% if profile.bio %}
+          <p>{{profile.bio}}</p>
+          {% else %}
+          <span style="color: grey">not added yet</span>
+          {% endif %}
+        </div>
+        <div class="tab-pane fade" id="nav-edit" role="tabpanel" aria-labelledby="nav-edit-tab">
+          <br>
+          <button class="btn btn-primary" type="button" data-toggle="collapse"
+            data-target="#collapseExampleupdateprofilepic" aria-expanded="false" aria-controls="collapseExample">
+            <i class="fas fa-upload"></i> Pic <i class="fas fa-camera-retro"></i>
+          </button>
+          <button class="btn btn-primary" type="button" data-toggle="collapse"
+            data-target="#collapseExampleupdatecoverpic" aria-expanded="false" aria-controls="collapseExample">
+            <i class="fas fa-upload"></i> Cover <i class="fas fa-image"></i>
+          </button>
+          <div class="collapse" id="collapseExampleupdateprofilepic">
+            <div class="card card-body">
+              <form action="{% url 'Update-Pic' %}" method="POST" enctype="multipart/form-data" style="overflow: auto">
+                {% csrf_token %}
+                <input type="file" onchange="upload_check(this)" id="file1" name="file1"
+                  accept="image/png,image/gif,image/jpeg,image/jpg" required />
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </form>
+            </div>
+          </div>
+
+          <div class="collapse" id="collapseExampleupdatecoverpic">
+            <div class="card card-body">
+              <form action="{% url 'Update-Cover' %}" method="POST" enctype="multipart/form-data"
+                style="overflow: auto">
+                {% csrf_token %}
+                <input type="file" onchange="upload_check(this)" name="file2" id="file2"
+                  accept="image/png,image/gif,image/jpeg,image/jpg" required />
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </form>
+            </div>
+          </div>
+          <hr>
+          <button class="btn btn-primary" type="button" data-toggle="collapse"
+            data-target="#collapseExamplechangeaddprofileinfo" aria-expanded="false" aria-controls="collapseExample">
+            Change or add Profile info
+          </button>
+          <div class="collapse" id="collapseExamplechangeaddprofileinfo">
+            <div class="card card-body">
+              <form action="{% url 'Update-Profileinfo' %}" method="POST">
+                {% csrf_token %}
+                <div class="control-group">
+                  <div class="form-group floating-label-form-group controls">
+                    <label>Username</label>
+                    <input type="text" class="form-control" placeholder="Username" value="{{user.get_username}}"
+                      id="uname" name='uname' required data-validation-required-message="Please enter username.">
+                    <p class="help-block text-danger"></p>
+                  </div>
+                </div>
+                <div class="control-group">
+                  <div class="form-group floating-label-form-group controls">
+                    <label>Email Address</label>
+                    <input type="email" class="form-control" placeholder="Email Address" value="{{user.email}}"
+                      id="email" name='email' required
+                      data-validation-required-message="Please enter your email address.">
+                    <p class="help-block text-danger"></p>
+                  </div>
+                </div>
+                <div class="control-group">
+                  <div class="form-group floating-label-form-group controls">
+                    <label>Firstname</label>
+                    <input type="text" class="form-control" placeholder="Firstname" {% if user.first_name %}
+                      value="{{user.first_name}}" {% endif %} id="fname" name='fname'
+                      data-validation-required-message="Please enter firstname.">
+                    <p class="help-block text-danger"></p>
+                  </div>
+                </div>
+                <div class="control-group">
+                  <div class="form-group floating-label-form-group controls">
+                    <label>Lastname</label>
+                    <input type="text" class="form-control" placeholder="Lastname" {% if user.last_name %}
+                      value="{{user.last_name}}" {% endif %} id="lname" name='lname'
+                      data-validation-required-message="Please enter lastname.">
+                    <p class="help-block text-danger"></p>
+                  </div>
+                </div>
+                <div class="control-group">
+                  <div class="form-group floating-label-form-group controls">
+                    <label>Age</label>
+                    <input type="number" class="form-control" placeholder="Age" {% if profile.age %}
+                      value="{{profile.age}}" {% endif %} id="age" name='age'
+                      data-validation-required-message="Please enter age.">
+                    <p class="help-block text-danger"></p>
+                  </div>
+                </div>
+                <div class="control-group">
+                  <div class="form-group floating-label-form-group controls">
+                    <label>Location</label>
+                    <input type="text" class="form-control" placeholder="Location" {% if profile.location %}
+                      value="{{profile.location}}" {% endif %} id="location" name='location'
+                      data-validation-required-message="Please enter location.">
+                    <p class="help-block text-danger"></p>
+                  </div>
+                </div>
+                <div class="control-group">
+                  <div class="form-group floating-label-form-group controls">
+                    <label>Bio</label>
+                    <textarea rows="5" class="form-control" placeholder="Bio" id="bio" name='bio'
+                      data-validation-required-message="Please enter bio.">{% if profile.bio %}{{profile.bio}}{% endif %}</textarea>
+                    <p class="help-block text-danger"></p>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </form>
+            </div>
+          </div>
+          <hr>
+          <a href="{% url 'Changepwd' %}">
+            <button class="btn btn-primary">
+              Change Password <i class="fas fa-key"></i>
+            </button>
+          </a>
+        </div>
+        <div class="tab-pane fade" id="nav-notifications" role="tabpanel" aria-labelledby="nav-notifications-tab">
+          <br>
+          <div class="post-box">
+            {% if notifications %}
+            {% for notification in notifications %}
+            {% if notification.notify_reason == 'welcome'  %}
+            <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
+              <div class="toast-header">
+                <img src="{% static 'Blog/favicons/apple-touch-icon.png' %}" width="20" height="20" class="rounded mr-2"
+                  alt="...">
+                <strong class="mr-auto">Blogjet</strong>
+                <small>{{ notification.date | naturaltime }}</small>
+                <button type="button" value="{{ notification.pk }}" name="delnoti" class="ml-2 mb-1 close"
+                  data-dismiss="toast" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="toast-body">
+                Welcome <a
+                  href="{% url 'User-Profile' notification.user_notify.pk %}">{{notification.user_notify.get_username}}</a>
+                to Blogjet family.
+              </div>
+            </div>
+            {% elif notification.notify_reason == 'replied' %}
+            <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
+              <div class="toast-header">
+                <img src="{% static 'Blog/favicons/apple-touch-icon.png' %}" width="20" height="20" class="rounded mr-2"
+                  alt="...">
+                <strong class="mr-auto">Blogjet</strong>
+                <small>{{ notification.date | naturaltime }}</small>
+
+                <button type="button" value="{{ notification.pk }}" name="delnoti" class="ml-2 mb-1 close"
+                  data-dismiss="toast" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+
+              </div>
+              <div class="toast-body">
+                <a href="{% url 'User-Profile' notification.user.pk %}">{{notification.user.get_username}}</a> replied
+                <a
+                  href="{% url 'Post' notification.post.slug notification.post.pk %}#commentbox{{notification.comment.pk}}">"
+                  {{notification.comment.content|truncatechars:20 }} "</a> to your comment on post
+                <a
+                  href="{% url 'Post' notification.post.slug notification.post.pk %}">{{notification.post.title |truncatechars:20 }}</a>
+              </div>
+            </div>
+
+            {% elif notification.notify_reason == 'liked' %}
+            <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
+              <div class="toast-header">
+                <img src="{% static 'Blog/favicons/apple-touch-icon.png' %}" width="20" height="20" class="rounded mr-2"
+                  alt="...">
+                <strong class="mr-auto">Blogjet</strong>
+                <small>{{ notification.date | naturaltime }}</small>
+                <button type="button" value="{{ notification.pk }}" name="delnoti" class="ml-2 mb-1 close"
+                  data-dismiss="toast" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+                </form>
+              </div>
+              <div class="toast-body">
+                <a href="{% url 'User-Profile' notification.user.pk %}">{{notification.user.get_username}}</a> liked
+                your
+                post <a
+                  href="{% url 'Post' notification.post.slug notification.post.pk %}">{{notification.post.title |truncatechars:20 }}</a>
+              </div>
+            </div>
+            {% elif notification.notify_reason == 'disliked' %}
+            <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
+              <div class="toast-header">
+                <img src="{% static 'Blog/favicons/apple-touch-icon.png' %}" width="20" height="20" class="rounded mr-2"
+                  alt="...">
+                <strong class="mr-auto">Blogjet</strong>
+                <small>{{ notification.date | naturaltime }}</small>
+                <button type="button" value="{{ notification.pk }}" name="delnoti" class="ml-2 mb-1 close"
+                  data-dismiss="toast" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+
+              </div>
+              <div class="toast-body">
+                <a href="{% url 'User-Profile' notification.user.pk %}">{{notification.user.get_username}}</a> disliked
+                your post <a
+                  href="{% url 'Post' notification.post.slug notification.post.pk %}">{{notification.post.title |truncatechars:20 }}</a>
+              </div>
+            </div>
+            {% elif notification.notify_reason == 'commented' %}
+            <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
+              <div class="toast-header">
+                <img src="{% static 'Blog/favicons/apple-touch-icon.png' %}" width="20" height="20" class="rounded mr-2"
+                  alt="...">
+                <strong class="mr-auto">Blogjet</strong>
+                <small>{{ notification.date | naturaltime }}</small>
+
+                <button type="button" value="{{ notification.pk }}" name="delnoti" class="ml-2 mb-1 close"
+                  data-dismiss="toast" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+
+              </div>
+              <div class="toast-body">
+                <a href="{% url 'User-Profile' notification.user.pk %}">{{notification.user.get_username}}</a> commented
+                <a
+                  href="{% url  'Post' notification.post.slug notification.post.pk %}#commentbox{{notification.comment.pk}}">"
+                  {{notification.comment.content|truncatechars:20}} "</a> on your post
+                <a
+                  href="{% url 'Post' notification.post.slug notification.post.pk %}">{{notification.post.title |truncatechars:20 }}</a>
+              </div>
+            </div>
+            {% elif notification.notify_reason == 'follow' %}
+            <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
+              <div class="toast-header">
+                <img src="{% static 'Blog/favicons/apple-touch-icon.png' %}" width="20" height="20" class="rounded mr-2"
+                  alt="...">
+                <strong class="mr-auto">Blogjet</strong>
+                <small>{{ notification.date | naturaltime }}</small>
+
+                <button type="button" value="{{ notification.pk }}" name="delnoti" class="ml-2 mb-1 close"
+                  data-dismiss="toast" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+
+              </div>
+              <div class="toast-body">
+                <a href="{% url 'User-Profile' notification.user.pk %}">{{notification.user.get_username}}</a> started
+                following you.
+              </div>
+            </div>
+            {% elif notification.notify_reason == 'unfollow' %}
+            <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
+              <div class="toast-header">
+                <img src="{% static 'Blog/favicons/apple-touch-icon.png' %}" width="20" height="20" class="rounded mr-2"
+                  alt="...">
+                <strong class="mr-auto">Blogjet</strong>
+                <small>{{ notification.date | naturaltime }}</small>
+
+                <button type="button" value="{{ notification.pk }}" name="delnoti" class="ml-2 mb-1 close"
+                  data-dismiss="toast" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+
+              </div>
+              <div class="toast-body">
+                <a href="{% url 'User-Profile' notification.user.pk %}">{{notification.user.get_username}}</a>
+                unfollowing
+                you.</p>
+              </div>
+            </div>
+            {% else %}
+            <p>No notifications yet.</p>
+            {% endif %}
+            {% endfor %}
+            {% else %}
+            <p>No notifications yet.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <hr>
+      <h3><i class="fas fa-cog"></i> &nbsp;Basic Actions</h3>
+      <a href="{% url 'New-Post' %}">
+        <button class="btn btn-primary">
+          <i class="fas fa-plus"></i> &nbsp;Post
+        </button></a>
+      <a href="{% url 'Logout' %}">
+        <button class="btn btn-primary">
+          <i class="fas fa-sign-out-alt"></i> &nbsp;Logout
+        </button></a>
+      <hr>
+      {% for usr,fusr in followinguser %}
+      {% if forloop.first %}
+      <h3 id="followers_count"><i class="fas fa-user-friends"></i> &nbsp;Following : {{profile.following}}</h3>
+      <div class="post-box">
+        {% endif %}
+        <div class="toast" role="alert" aria-live="assertive" id="follower{{usr.follow.pk}}" aria-atomic="true"
+          data-autohide='false' style="width:100%;margin:10px 0;">
+          <div class="toast-header">
+            <a href="{% url 'User-Profile' usr.follow.pk %}"><img src="{{ fusr.profile_pic.url}}" width='25' height='25'
+                class="rounded mr-2" object-fit:contain; alt="user-pic"></a>
+            <a class="mr-auto" href="{% url 'User-Profile' usr.follow.pk %}"><strong style="color: #6c757d;">
+                {{usr.follow.get_username}}
+              </strong></a>
+            {% if user.is_authenticated  %}
+            <button type="button" value="{{ usr.follow.pk }}" name="cmntpk" class="ml-2  btn btn-primary"
+              style="font-size: 12px;padding: 3px 5px;margin:0;text-transform: capitalize;" data-dismiss="toast"
+              aria-label="Close" onclick="unfollow({{usr.follow.pk}});">
+              <span aria-hidden="true">Unfollow</span>
+            </button>
+            {% endif %}
+          </div>
+        </div>
+        {% if forloop.last %}
+      </div>
+      <hr>
+      {% endif %}
+      {% endfor %}
+
+      {% if likedposts %}
+      <h3><i class="far fa-thumbs-up"></i> &nbsp;Liked Posts - {{likedposts.count}}</h3>
+      <div class="post-box">
+        {% for  lkpost in likedposts %}
+        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide='false'
+          style="width:100%;margin:10px 0;">
+          <div class="toast-body">
+            <a href="{% url  'Post' lkpost.post.slug lkpost.post.pk %}">
+              {{ lkpost.post.title}}</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <hr>
+      {% endif %}
+      {% if dislikedposts %}
+      <h3><i class="far fa-thumbs-down"></i> &nbsp;Disliked Posts - {{dislikedposts.count}}</h3>
+      <div class="post-box">
+        {% for  dkpost in dislikedposts %}
+        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide='false'
+          style="width:100%;margin:10px 0;">
+          <div class="toast-body">
+            <a href="{% url  'Post' dkpost.post.slug dkpost.post.pk %}">
+              {{ dkpost.post.title}}</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <hr>
+      {% endif %}
+      <h3 id='post-count'><i class="fas fa-layer-group"></i> &nbsp;My Posts - {{posts.count}}</h3>
+      {% if posts %}
+      <div class="post-box">
+        {% for post in posts %}
+        <div class="toast" role="alert" aria-live="assertive" id="post{{post.pk}}" aria-atomic="true"
+          data-autohide='false' style="width:100%;margin:10px 0;">
+          <div class="toast-body clearfix">
+            <div>
+              <a href="{% url  'Post' post.slug post.pk %}">{{ post.title}}</a>
+            </div>
+            <div>
+              {% if user.is_authenticated and user == post.author %}
+              <a href="{% url 'Update-Post' post.pk %}" style="font-size: 10px;padding:5px;margin: 0;"
+                class="btn btn-primary">Edit</a>
+              <button type="button" value="{{ post.pk }}" style="font-size: 10px;padding:5px;"
+                onclick="deletepost({{post.pk}});" name="postpk" class="btn btn-primary mx-1" data-dismiss="toast"
+                aria-label="Close"><i class="fas fa-trash-alt" style="font-size: 13px;"></i>
+                &nbsp;Delete
+              </button>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p style="color: grey">No post posted yet.</p>
+      {% endif %}
+      <hr>
+      {% if comments %}
+      <h3 id="comments-count"><i class="far fa-comments"></i> &nbsp;Comments - {{comments.count}}</h3>
+      <div class="post-box">
+        {% for comment in comments %}
+        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" id="commentbox{{comment.pk}}"
+          data-autohide='false' style="width:100%;margin:10px 0;">
+          <div class="toast-header">
+            <a href="{% url 'User-Profile' comment.user_posting.pk %}"><img src="{{comment.profile_pic.url}}" width='25'
+                height='25' class="rounded mr-2" object-fit: contain; alt="user-pic"></a>
+            <a class="mr-auto" href="{% url 'User-Profile' comment.user_posting.pk %}"><strong style="color: #6c757d;">
+                {{ comment.user_posting  }}
+              </strong></a>
+            <small>{{comment.created |naturaltime}}</small>
+            {% if user.is_authenticated and user == comment.user_posting %}
+            <button type="button" value="{{ comment.pk }}" name="cmntpk" class="ml-2 mb-1 close" data-dismiss="toast"
+              aria-label="Close" onclick="deletecomment({{comment.pk}});">
+              <span aria-hidden="true"><i class="fas fa-trash-alt" style="font-size: 13px;"></i></span>
+            </button>
+            {% endif %}
+          </div>
+          <div class="toast-body">
+            <a
+              href="{% url 'Post' comment.post.slug comment.post.pk %}#commentbox{{comment.pk}}">{{ comment.content|truncatechars:25 }}</a>
+          </div>
+        </div>
+
+        {% endfor %}
+      </div>
+      <hr>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block js %}
+
+<script>
+  var ncount = {{ notifications.count }};
+  var ccount = {{ comments.count }};
+  var pcount = {{ posts.count }};
+  var fcount = {{ profile.following }};
+  window.CSRF_TOKEN = "{{ csrf_token }}";
+  function upload_check(th) {
+    if (th.files[0].size > 5097152) {
+      alert("File to Big!");
+      th.value = "";
+    }
+  }
+
+  function deletecomment(pk) {
+    var value = pk;
+    $.post("{% url 'Del-Comnt' %}", { csrfmiddlewaretoken: window.CSRF_TOKEN, cmntpk: value }, function () {
+      ccount--;
+      $('#comments-count').html(`<i class="far fa-comments"></i> Comments - ` + ccount + ``);
+      $("#commentbox" + value).remove();
+    });
+  }
+  function deletepost(pk) {
+    var value = pk;
+    $.post("{% url 'Del-Post' %}", { csrfmiddlewaretoken: window.CSRF_TOKEN, postpk: value }, function () {
+      pcount--;
+      $('#post-count').html(`<i class="fas fa-layer-group"></i> All Posts - ` + pcount + ``);
+      $("#post" + value).remove();
+    });
+  }
+
+  function unfollow(pk) {
+    $.post("{% url 'Unfollow' %}", { csrfmiddlewaretoken: window.CSRF_TOKEN, unfollow: pk }, function () {
+      $('#follower' + pk).remove();
+      fcount--;
+      $("#followers_count").html(`<i class="fas fa-user-friends"></i> &nbsp;Following : ` + fcount + ``);
+      $("#followers__count").html(fcount);
+    });
+  };
+
+  $(function () {
+    $('.toast').toast('show');
+    $('.container .close').click(function () {
+      var value = $(this).val();
+      $.post("{% url 'Del-Notification' %}", { csrfmiddlewaretoken: window.CSRF_TOKEN, delnoti: value }, function () {
+        ncount--;
+        $("#notification-count").text(ncount);
+      });
+    });
+
+  }
+  );
+</script>
+
+{% endblock %}

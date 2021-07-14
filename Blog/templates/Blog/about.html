@@ -1,0 +1,36 @@
+{% extends 'Blog/layout.html' %}
+{% load static %}
+
+{% block body %}
+<!-- Page Header -->
+<header class="masthead" style="background-image: url('{% static 'Blog/img/about-bg.jpg' %}')">
+  <div class="overlay"></div>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-md-10 mx-auto">
+        <div class="page-heading">
+          <h1>About Me</h1>
+          <hr class="small">
+          <span class="subheading">This is what I do.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-md-10 mx-auto">
+      <p>Hi my name is Piyush Sati.I am Tech Enthusiast,Problem solver and love to work on creating and building
+        realworld based projects and solving problems in my free time.</p>
+      <p>If have a project that that you want to get
+        started or think you need my help with something then get in touch.</p>
+      <p>Check out my Personal Website at
+        <a href="https://itspiyushsati.netlify.app/">www.itspiyushsati.netlify.app</a>.</p>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}

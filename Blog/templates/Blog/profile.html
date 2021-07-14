@@ -1,0 +1,231 @@
+{% extends "Blog/layout.html" %}
+{% load static %}
+{% load humanize %}
+{% block css %}
+<style>
+  .toast {
+    max-width: none;
+  }
+
+  .toast-body {
+    word-wrap: break-word !important;
+    word-break: keep-all;
+  }
+
+  .post-box {
+    max-height: 350px;
+    overflow: auto;
+  }
+
+  .card {
+    border: none
+  }
+
+  body {
+    color: #555;
+  }
+</style>
+
+{% endblock %}
+{% block body %}
+<!-- Page Header -->
+<header class="masthead" style="background-image: url('{{ profile.cover_pic.url }}');">
+  <div class="overlay"></div>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-md-10 mx-auto">
+        <div class="site-heading">
+          <h1>Profile</h1>
+          <hr class="small">
+          <span class="subheading">View and follow profile</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% for message in messages %}
+  <div {% if message.tags %} class="alert alert-{{message.tags }}  alert-dismissible fade show" {% endif %} role="alert"
+    style="margin-bottom: 0;">
+    {% if message.tags == 'danger'  %}
+    &cross;
+    {% else %}
+    &check;
+    {% endif %}
+    {{ message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  {% endfor %}
+</header>
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-md-10 mx-auto">
+      <h3>Profile</h3>
+      <div>
+        <img id="profile_pic" src="{{ profile.profile_pic.url }}" alt="Profile Image" width="100" height="100"
+          style="border-radius: 50%; object-fit: cover; margin: 20px 0" />
+      </div>
+      <h6><i class="fas fa-user-circle"></i> &nbsp;User: {{ profile.user.get_username }}</h6>
+      <h6><i class="fas fa-user-tie"></i> &nbsp;Name:{% if profile.user.first_name and profile.user.last_name %}
+        {{profile.user.first_name}}
+        {{profile.user.last_name}}
+        {% else %} <span style="color: grey">not added yet</span>{% endif %}</h6>
+      <h6><i class="fas fa-calendar-day"></i> &nbsp;Age: {% if profile.age %} {{profile.age}} {% else %} <span
+          style="color: grey">not added
+          yet</span>{% endif %}</h6>
+      <h6><i class="fas fa-map-marker-alt"></i> &nbsp;Location: {% if profile.location %} {{profile.location}}
+        {% else %}<span style="color: grey">not added
+          yet</span>{% endif %} </h6>
+      <h6><i class="fas fa-calendar-alt"></i> &nbsp;Date joined: {{ profile.user.date_joined|naturaltime }}</h6>
+      <h6><i class="fas fa-sign-in-alt"></i> &nbsp;Last login: {{ profile.user.last_login | naturaltime }}</h6>
+      <hr>
+      <h6><i class="fas fa-users"></i>&nbsp;&nbsp;<span id="followers_count"
+          style="font-size:30px;font-weight: 500;">{{profile.followers}}</span> followers&nbsp;&nbsp;<span
+          style="font-size:30px;font-weight: 500;">{{profile.following}}</span> following</h6>
+      <hr>
+      {% if user.is_authenticated %}
+      {% if follow_or_unfollow %}
+      <button type="button" id="unfl" name="unfollow" value="{{profile.user.pk}}" class="btn btn-primary"><i
+          class="fas fa-user-slash"></i> &nbsp;Unfollow</button>
+      {% else %}
+      <button type="button" id="fl" name="follow" value="{{profile.user.pk}}" class="btn btn-primary"><i
+          class="fas fa-user"></i> &nbsp;Follow</button>
+      {% endif %}
+      <button type="button" id="follow" name="follow" value="{{profile.user.pk}}" class="btn btn-primary"><i
+          class="fas fa-user"></i> Follow</button>
+      <button type="button" id="unfollow" name="unfollow" value="{{profile.user.pk}}" class="btn btn-primary"><i
+          class="fas fa-user-slash"></i> &nbsp;Unfollow</button>
+      {% else %}
+      <form action="{% url 'Follow'  %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" name="follow" value="{{profile.user.pk}}" class="btn btn-primary"><i
+            class="fas fa-user"></i> &nbsp;Follow</button>
+      </form>
+      {% endif %}
+      <hr>
+      <h6><i class="fas fa-signature"></i> &nbsp;Bio</h6>
+      {% if profile.bio %}
+      <p>{{profile.bio}}</p>
+      {% else %}
+      <span style="color: grey">not added yet</span>
+      {% endif %}
+      <hr>
+      {% if likedposts %}
+      <h3><i class="far fa-thumbs-up"></i> &nbsp;Liked Posts - {{likedposts.count}}</h3>
+      <div class="post-box">
+        {% for  lkpost in likedposts %}
+        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide='false'
+          style="width:100%;margin:10px 0;">
+          <div class="toast-body">
+            <a href="{% url  'Post' lkpost.post.slug lkpost.post.pk %}">
+              {{ lkpost.post.title}}</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <hr>
+      {% endif %}
+      {% if dislikedposts %}
+      <h3><i class="far fa-thumbs-down"></i> &nbsp;Disliked Posts - {{dislikedposts.count}}</h3>
+      <div class="post-box">
+        {% for  dkpost in dislikedposts %}
+        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide='false'
+          style="width:100%;margin:10px 0;">
+          <div class="toast-body">
+            <a href="{% url  'Post' dkpost.post.slug dkpost.post.pk %}">
+              {{ dkpost.post.title}}</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <hr>
+      {% endif %}
+      <h3><i class="fas fa-layer-group"></i> &nbsp;Posted Posts - {{posts.count}}</h3>
+      {% if posts %}
+      <div class="post-box">
+        {% for post in posts %}
+        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide='false'
+          style="width:100%;margin:10px 0;">
+          <div class="toast-body">
+            <a href="{% url  'Post' post.slug post.pk %}">{{ post.title}}</a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p style="color: grey">No post posted yet.</p>
+      {% endif %}
+      <hr>
+      {% if comments %}
+      <h3><i class="far fa-comments"></i> &nbsp;Comments - {{comments.count}}</h3>
+      <div class="post-box">
+        {% for comment in comments %}
+        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide='false'
+          style="width:100%;margin:10px 0;">
+          <div class="toast-header">
+            <a href="{% url 'User-Profile' comment.user_posting.pk %}"><img src="{{comment.profile_pic.url}}" width='25'
+                height='25' class="rounded mr-2" object-fit: contain; alt="user-pic"></a>
+            <a class="mr-auto" href="{% url 'User-Profile' comment.user_posting.pk %}"><strong style="color: #6c757d;">
+                {{ comment.user_posting  }}
+              </strong></a>
+            <small>{{comment.created |naturaltime}}</small>
+          </div>
+          <div class="toast-body">
+            <a href="{% url 'Post' comment.post.slug comment.post.pk %}#commentbox{{comment.pk}}">{{ comment.content|truncatechars:25 }}
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <hr>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block js %}
+<script>
+  var fcount = {{ profile.followers }};
+  window.CSRF_TOKEN = "{{ csrf_token }}";
+  $(function () {
+    $('.toast').toast('show');
+    $('#follow').hide();
+    $('#unfollow').hide();
+    $("#unfl").click(function () {
+      $.post("{% url 'Unfollow' %}", { csrfmiddlewaretoken: window.CSRF_TOKEN, unfollow: $(this).val() }, function () {
+        $('#unfl').hide();
+        fcount--;
+        $("#followers_count").html(fcount)
+        $('#follow').show();
+      });
+    });
+    $("#fl").click(function () {
+      $.post("{% url 'Follow'   %}", { csrfmiddlewaretoken: window.CSRF_TOKEN, follow: $(this).val() }, function () {
+        fcount++;
+        $("#followers_count").html(fcount)
+        $('#fl').hide();
+        $('#unfollow').show();
+      });
+    });
+    $('#follow').on('click', function () {
+      $.post("{% url 'Follow'   %}", { csrfmiddlewaretoken: window.CSRF_TOKEN, follow: $(this).val() }, function () {
+        fcount++;
+        $("#followers_count").html(fcount)
+        $('#follow').hide();
+        $("#unfollow").show();
+      });
+
+    });
+    $('#unfollow').on('click', function () {
+      $.post("{% url 'Unfollow' %}", { csrfmiddlewaretoken: window.CSRF_TOKEN, unfollow: $(this).val() }, function () {
+        fcount--;
+        $("#followers_count").html(fcount)
+        $('#unfollow').hide();
+        $("#follow").show();
+      });
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,106 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>Blogjet</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!--===============================================================================================-->
+
+	<!--  Favicons -->
+	<link rel="apple-touch-icon" sizes='180x180' href="{% static 'Blog/favicons/apple-touch-icon.png' %}">
+	<link rel="icon" sizes='32x32' type="image/png" href="{% static 'Blog/favicons/favicon-32x32.png' %}">
+	<link rel="icon" sizes='16x16' type="image/png" href="{% static 'Blog/favicons/favicon-16x16.png' %}">
+	<link rel="manifest" href="{% static 'Blog/favicons/site.webmanifest' %}">
+	<link rel="mask-icon" href="{% static 'Blog/favicons/safari-pinned-tab.svg' %}" color='#5bbad5'>
+	<meta name='msapplication-TileColor' content="#da532c">
+	<meta name="theme-color" content="#ffffff">
+
+
+	<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{% static 'Blog/vendor/bootstrap/css/bootstrap.min.css' %}">
+	<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{% static 'Blog/fonts/font-awesome-4.7.0/css/font-awesome.min.css' %}">
+	<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css"
+		href="{% static 'Blog/fonts/iconic/css/material-design-iconic-font.min.css' %}">
+	<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{% static 'Blog/vendor/animate/animate.css' %}">
+	<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{% static 'Blog/vendor/css-hamburgers/hamburgers.min.css' %}">
+	<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{% static 'Blog/vendor/animsition/css/animsition.min.css' %}">
+	<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{% static 'Blog/vendor/select2/select2.min.css' %}">
+	<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{% static 'Blog/vendor/daterangepicker/daterangepicker.css' %}">
+	<!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{% static 'Blog/css/util.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'Blog/css/main.css' %}">
+	<style>
+		@media screen and (max-width:500px) {
+			.alert-dismissible {
+				font-size: 15px;
+			}
+		}
+	</style>
+	{% block css %}
+	{% endblock %}
+	<!--===============================================================================================-->
+</head>
+
+<body>
+
+
+	{% for message in messages %}
+	<div {% if message.tags %} class="alert alert-{{message.tags }}  alert-dismissible fade show" {% endif %}
+		role="alert" style="margin-bottom: 0;">
+		{% if message.tags == 'danger'  %}
+		&cross;
+		{% else %}
+		&check;
+		{% endif %}
+		{{ message }}
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
+	{% endfor %}
+
+
+	<div class="limiter">
+		<div class="container-login100">
+			<div class="wrap-login100">
+				{% block body %}
+
+				{% endblock %}
+			</div>
+		</div>
+	</div>
+
+
+	<div id="dropDownSelect1"></div>
+
+	<!--===============================================================================================-->
+	<script src="{% static 'Blog/vendor/jquery/jquery.min.js' %}"></script>
+	<!--===============================================================================================-->
+	<script src="{% static 'Blog/vendor/animsition/js/animsition.min.js' %}"></script>
+	<!--===============================================================================================-->
+	<script src="{% static 'Blog/vendor/bootstrap/js/popper.js' %}"></script>
+	<script src="{% static 'Blog/vendor/bootstrap/js/bootstrap.min.js' %}"></script>
+	<!--===============================================================================================-->
+	<script src="{% static 'Blog/vendor/select2/select2.min.js' %}"></script>
+	<!--===============================================================================================-->
+	<script src="{% static 'Blog/vendor/daterangepicker/moment.min.js' %}"></script>
+	<script src="{% static 'Blog/vendor/daterangepicker/daterangepicker.js' %}"></script>
+	<!--===============================================================================================-->
+	<script src="{% static 'Blog/vendor/countdowntime/countdowntime.js' %}"></script>
+	<!--===============================================================================================-->
+	<script src="{% static 'Blog/js/main.js' %}"></script>
+
+	{% block js %}
+	{% endblock %}
+</body>
+
+</html>
