@@ -32,31 +32,31 @@ https://itspiyushsati.pythonanywhere.com/
 Clone the project
 
 ```bash
-git clone https://github.com/Pinqua/Blogjet.git
+  git clone https://github.com/Pinqua/Blogjet.git
 ```
 
 Go to the project directory
 
 ```bash
-cd my-project
+  cd my-project
 ```
 
 Install dependencies
 
 ```bash
-pip install -r requirements.txt
+  pip install -r requirements.txt
 ```
 
 Migrate
 
 ```bash
-python manage.py migrate
+  python manage.py migrate
 ```
 
 Start server
 
 ```bash
-python manage.py runserver
+  python manage.py runserver
 ```
 
   
