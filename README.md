@@ -21,7 +21,7 @@ https://itspiyushsati.pythonanywhere.com/
 
 - User authentication + forget password functionality.
 - Tinymce(text editor) integration for content creation.
-- Comment section(without using any third party services).
+- Comment section (without using any third party services).
 - User can like,dislike,add new post,edit a post,delete a post.
 - User Profile section.
 - Fully responsive mobile friendly.
