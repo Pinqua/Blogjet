@@ -32,7 +32,7 @@ https://itspiyushsati.pythonanywhere.com/
 Clone the project
 
 ```bash
-git clone https://github.com/gocardless/sample-django-app.git
+git clone https://github.com/Pinqua/Blogjet.git
 ```
 
 Go to the project directory
