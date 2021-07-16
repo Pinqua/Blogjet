@@ -17,6 +17,11 @@ https://itspiyushsati.pythonanywhere.com
 ![App Screenshot](https://i.ibb.co/z56nzF1/blogjet.gif)
 
   
+## Acknowledgements
+
+ - [Template](https://startbootstrap.com/theme/clean-blog)
+
+
 ## Features
 
 - User authentication + forget password functionality
