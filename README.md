@@ -9,7 +9,7 @@ A Blog website built using html, css, js and django.
 
 ## Demo
 
-https://itspiyushsati.pythonanywhere.com/
+https://itspiyushsati.pythonanywhere.com
 
 
 ## Screenshots
@@ -19,12 +19,12 @@ https://itspiyushsati.pythonanywhere.com/
   
 ## Features
 
-- User authentication + forget password functionality.
-- Tinymce(text editor) integration for content creation.
-- Comment section (without using any third party services).
-- User can like,dislike,add new post,edit a post,delete a post.
-- User Profile section.
-- Fully responsive mobile friendly.
+- User authentication + forget password functionality
+- Tinymce(text editor) integration for content creation
+- Comment section (without using any third party services)
+- User can like,dislike,add new post,edit a post,delete a post
+- User Profile section
+- Fully responsive mobile friendly
 
 
 ## Setup
