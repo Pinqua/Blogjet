@@ -3,7 +3,7 @@
 
 # Blogjet
 
-A Blog website built using html, css, js and django.
+Blog website built using html, css, js and django.
 
 ![Logo](https://itspiyushsati.pythonanywhere.com/static/Blog/favicons/apple-touch-icon.png)
 
