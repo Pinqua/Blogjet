@@ -10,6 +10,7 @@ Blog website built using HTML, CSS, JS and Django
 ## Demo
 
 https://itspiyushsati.pythonanywhere.com
+https://blogjet.herokuapp.com/
 
 
 ## Screenshots
