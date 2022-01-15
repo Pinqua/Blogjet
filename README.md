@@ -5,7 +5,7 @@
 
 Blog website built using HTML, CSS, JS and Django
 
-![Logo](https://itspiyushsati.pythonanywhere.com/static/Blog/favicons/apple-touch-icon.png)
+![Logo](https://blogjet.herokuapp.com/static/Blog/favicons/favicon-32x32.png)
 
 ## Demo
 
