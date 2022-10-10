@@ -27,7 +27,7 @@ Blog website built using HTML, CSS, JS and Django
 - User authentication + forget password functionality
 - Tinymce (text editor) integration for content creation
 - Comment section (without using any third party services)
-- User can like, dislike, add new post, edit a post, delete a post
+- Users can like, dislike, add new posts, edit a post, delete a post
 - User Profile section
 - Fully responsive mobile friendly
 
