@@ -20,7 +20,7 @@
 
 Blog website built using HTML, CSS, JS and Django
 
-![Logo](Blog/static/Blog/favicons/apple-touch-icon.png)
+<img src="Blog/static/Blog/favicons/apple-touch-icon.png" alt="" height="100"/>
 
 ## Demo
 
